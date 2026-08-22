@@ -18,13 +18,13 @@
 \\     with the congruence.  Note both sides fail for p = 2,3 when p !| b, which
 \\     is the p in {2,3} half of the proof.
 \\
-\\ (B) The exponents behind Remark 5.5 of paper.tex.
+\\ (B) The exponents behind Remark 5.7 of paper.tex.
 \\     Under (star), "not fundamental <=> square" (thm:starq), so for |b| <= 3000
 \\     the b with eta_b not fundamental are exactly the square-exceptions of
 \\     thm:closed lying in that range, together with the four b where (star)
 \\     fails (b = -75,-3,3,9; the first three are square-exceptions anyway).
 \\     Writing eta_b = eta_0^n with eta_0 the fundamental unit, the prime
-\\     divisors of n are exactly the exponents q that occur.  Remark 5.5 claims
+\\     divisors of n are exactly the exponents q that occur.  Remark 5.7 claims
 \\     q = 2 (infinitely often), q = 3 only at b = 9, q = 13 at b = 3, and no
 \\     q >= 17 for |b| <= 3000; this run produces the table of n.
 \\
@@ -33,6 +33,11 @@
 \\ Usage:  gp -q check-audit-post-trim.gp        (a few minutes)
 
 default(realprecision, 60);
+
+\\ --- E119 gate harness (added 2026-08-19; see sections/E119.tex) ---
+FAIL = 0;
+check(c, msg) = { if(!c, printf("   [FAIL] %s\n", msg); FAIL++); return(c); };
+\\ --- end gate harness ---
 
 \\ ---------------------------------------------------------------- (A)
 print("### (A) thm:idx:  p | [O_K:Z[theta]]  <=>  b^3 = 4 (mod p^2),  p !| b ###");
@@ -54,6 +59,7 @@ for(b = -BB, BB,
     );
   );
 );
+check(fail == 0, "E024(f): p | [O_K:Z[theta]] <=> b^3 = 4 mod p^2, 35238 pairs (|b|<=400, p<200, p nmid b)");
 print("  |b| <= ", BB, ",  p < ", PB, ":  pairs tested = ", tested,
       ",  mismatches = ", fail);
 print(if(fail == 0, "  => equivalence confirmed on this range.",
@@ -81,9 +87,14 @@ for(i = 1, #bs,
   print("  ", b, "\t", n, "\t", pf);
 );
 my(occ = vecsort(Vec(qs), , 8));
+check(occ == [2,3,13],
+      "E024(g): the exponents q for |b|<=3000 are exactly 2,3,13 -- ASSUMES GRH (bnfinit, no bnfcertify)");
 print("  exponents q occurring for |b| <= 3000 : ", occ);
 print("  max q = ", vecmax(occ),
-      "   (Remark 5.5 claims q = 2, 3, 13 only, hence none >= 17)");
+      "   (Remark 5.7 claims q = 2, 3, 13 only, hence none >= 17)");
 }
 
+printf("\nE024 GATE: %s   (%d failures)\n", if(FAIL, "*** RED ***", "GREEN"), FAIL);
+
 quit
+

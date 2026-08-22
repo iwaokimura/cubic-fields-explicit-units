@@ -17,6 +17,11 @@
 
 default(realprecision, 60);
 
+\\ --- E119 gate harness (added 2026-08-19; see sections/E119.tex) ---
+FAIL = 0;
+check(c, msg) = { if(!c, printf("   [FAIL] %s\n", msg); FAIL++); return(c); };
+\\ --- end gate harness ---
+
 BND(b) = 4*(3*(b^2+b+1)+1)^(3/5) + 24;
 
 print("### (1) (star) over |b| <= 3000, both signs ###");
@@ -26,6 +31,7 @@ for(b = -3000, 3000, if(b != 0 && b != 1,
   cnt++;
   if(abs(nfdisc(x^3-3*b*x-b^3)) < BND(b), bad = concat(bad, [b]))));
 print("  tested ", cnt, " values;  (star) FAILS exactly for b in ", bad);
+check(Set(bad) == Set([-75,-3,3,9]), "E020(c): (star) fails exactly at b = -75,-3,3,9 over |b|<=3000");
 }
 
 print();
@@ -71,6 +77,7 @@ my(bad = 0);
 for(b = -3000, 3000, if(b != 0 && b != 1,
   if(valuation(b^3-4, 2) > 2 || valuation(b^3-4, 3) > 1, bad++; print("  FAIL b=", b))));
 print("      violations over |b|<=3000: ", bad);
+check(bad == 0, "E020(b): v_2(b^3-4)<=2 and v_3(b^3-4)<=1 over |b|<=3000");
 print("      cubes mod 9: ", Set(vector(27, i, i^3 % 9)));
 }
 {
@@ -150,6 +157,7 @@ for(b = -120, -1, if(b % 3 != 0 && issquarefree(b^3-4),
   n = abs(lift(bnfisunit(K, 1/((b+1)-Mod(x,f)))[1]));
   if(n != 1, bad++; print("  NOT FUNDAMENTAL b=", b, "  exponent=", n))));
 print("  tested ", cnt, " values;  failures: ", bad);
+check(bad == 0, "E020: eta_b fundamental for b<=-1, 3 nmid b, b^3-4 squarefree, |b|<=120");
 }
 
 print();
@@ -207,6 +215,7 @@ for(b = -3000, 3000, if(b != 0 && b != 1 && b % 3 != 0,
   r = 1.0*R*t/abs(b)^1.2;
   if(cnt == 1 || r < worst, worst = r; wb = b)));
 print("  tested ", cnt, " values with 3 nmid b;   failures: ", bad);
+check(bad == 0, "E020(b): |D_K| >= 27 R t, with equality up to a power of 2, 3 nmid b, |b|<=3000");
 print("  min R*t/|b|^{6/5} = ", worst, " at b = ", wb,
       "     (>= 4*3^{3/5}/27 = ", 4*3^0.6/27, " suffices for (star))");
 }
@@ -217,6 +226,7 @@ for(b = -600, 600, if(b != 0 && b != 1 && b % 3 == 0,
   my(dk = nfdisc(x^3-3*b*x-b^3), w = valuation(b,3));
   if(valuation(dk,3) != (1 - w % 2), bad++; print("   FAIL b=", b))));
 print("   mismatches over |b|<=600, 3|b: ", bad);
+check(bad == 0, "E020(c): v_3(D_K) = [v_3(b) even] in {0,1} for 3|b, |b|<=600");
 print("   the four (star)-failures all have 3 | b: ",
       vector(4, i, my(v = [-75,-3,3,9]); [v[i], v[i] % 3 == 0]));
 }
@@ -228,3 +238,5 @@ print("   |b^3-4| = ", G, "   R = ", 1, "   k = ", 10, "   t = ", 89,
 print("   ABC quality of (4, 10^6, 1000004): ",
       log(1000004.)/log(1.0*2*10*(2*53*89)));
 }
+
+printf("\nE020 GATE: %s   (%d failures)\n", if(FAIL, "*** RED ***", "GREEN"), FAIL);
